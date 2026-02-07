@@ -23,7 +23,7 @@ if img_file:
     with st.spinner("n8n 서버로 안전하게 보내는 중..."):
         try:
             # 파일을 n8n이 받을 수 있는 형태로 변환
-            files = {"data": img_file.getvalue()}
+           files = {"data": ("receipt.jpg", img_file.getvalue(), "image/jpeg")}
             
             # n8n Webhook으로 전송
             response = requests.post(URL, files=files)
@@ -40,3 +40,4 @@ if img_file:
 
 st.divider()
 st.caption("Tip: 사진을 올린 후 n8n 화면에서 데이터가 들어오는지 새로고침하며 확인하세요.")
+
