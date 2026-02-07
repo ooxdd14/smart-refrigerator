@@ -24,7 +24,7 @@ if img_file:
         try:
             # 파일을 n8n이 받을 수 있는 형태로 변환
            files = {"data": ("receipt.jpg", img_file.getvalue(), "image/jpeg")}
-            response = requests.post(URL, files=files) # 위아래 줄 시작 위치가 같아야 함!
+           response = requests.post(URL, files=files) # 위아래 줄 시작 위치가 같아야 함!
             
             # n8n Webhook으로 전송
             response = requests.post(URL, files=files)
@@ -41,5 +41,6 @@ if img_file:
 
 st.divider()
 st.caption("Tip: 사진을 올린 후 n8n 화면에서 데이터가 들어오는지 새로고침하며 확인하세요.")
+
 
 
