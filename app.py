@@ -1,31 +1,42 @@
 import streamlit as st
 import requests
 
+# --- 1. 설정: n8n에서 복사한 주소를 여기에 넣으세요 ---
+# 반드시 따옴표("") 안에 주소를 넣어야 합니다!
 URL = "https://primary-production-b57a.up.railway.app/webhook-test/5e2bd96c-0881-458f-8a4f-31795b4b066c"
 
-st.title("🧾 스마트 영수증 관리자")
-st.write("영수증을 업로드하면 AI가 냉장고에 자동 등록합니다.")
+st.set_page_config(page_title="스마트 냉장고 관리자", page_icon="🧾")
 
-# 1. 사진 업로드/촬영 칸 (모바일 접속 시 카메라 자동 실행)
-img_file = st.camera_input("영수증을 촬영하거나 업로드하세요")
+st.title("🧾 영수증 사진 업로드")
+st.write("갤러리에서 영수증 사진을 선택하면 AI가 분석을 시작합니다.")
 
+# --- 2. 파일 업로드 칸 (갤러리 사진 선택) ---
+img_file = st.file_uploader("영수증 사진을 골라주세요", type=['png', 'jpg', 'jpeg'])
+
+# 사진이 선택되면 실행되는 구역
 if img_file:
-    with st.spinner("Upstage AI가 분석 중..."):
-        # 2. Upstage OCR API 호출 부분
-        # (이미지 파일을 업스테이지 서버로 보내 데이터를 받아옴)
-        api_key = "YOUR_UPSTAGE_API_KEY"
-        headers = {"Authorization": f"Bearer {api_key}"}
-        files = {"document": img_file.getvalue()}
-        
-        # 실제 API 호출
-        response = requests.post("https://api.upstage.ai/v1/document-ai/ocr", headers=headers, files=files)
-        
-        if response.status_code == 200:
-            st.success("데이터 추출 완료!")
-            # 여기서 받아온 데이터(품목, 날짜)를 보여줌
-            # 예: "우유 / 유통기한: 2026-02-14"
-        else:
+    # 화면에 내가 올린 사진 미리보기
+    st.image(img_file, caption='선택한 영.수.증', use_container_width=True)
+    
+    # 전송 버튼을 만들거나, 선택하자마자 바로 보낼 수 있습니다.
+    # 여기서는 선택하자마자 바로 n8n으로 쏘도록 설정했습니다.
+    with st.spinner("n8n 서버로 안전하게 보내는 중..."):
+        try:
+            # 파일을 n8n이 받을 수 있는 형태로 변환
+            files = {"data": img_file.getvalue()}
+            
+            # n8n Webhook으로 전송
+            response = requests.post(URL, files=files)
+            
+            if response.status_code == 200:
+                st.success("✅ 전송 성공! n8n 워크플로우를 확인하세요.")
+                st.balloons() # 축하 풍선 효과
+            else:
+                st.error(f"❌ 전송 실패 (에러 코드: {response.status_code})")
+                st.info("n8n의 Webhook 노드가 'Listen for Test Event' 상태인지 확인해 보세요.")
+                
+        except Exception as e:
+            st.error(f"⚠️ 연결 중 오류 발생: {e}")
 
-            st.error("AI 연결 오류가 발생했습니다.")
-
-
+st.divider()
+st.caption("Tip: 사진을 올린 후 n8n 화면에서 데이터가 들어오는지 새로고침하며 확인하세요.")
