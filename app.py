@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-URL = https://primary-production-b57a.up.railway.app/webhook-test/5e2bd96c-0881-458f-8a4f-31795b4b066c
+URL = "https://primary-production-b57a.up.railway.app/webhook-test/5e2bd96c-0881-458f-8a4f-31795b4b066c"
 
 st.title("🧾 스마트 영수증 관리자")
 st.write("영수증을 업로드하면 AI가 냉장고에 자동 등록합니다.")
@@ -27,4 +27,5 @@ if img_file:
         else:
 
             st.error("AI 연결 오류가 발생했습니다.")
+
 
