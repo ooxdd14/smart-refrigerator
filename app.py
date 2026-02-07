@@ -1,3 +1,4 @@
+URL = https://primary-production-b57a.up.railway.app/webhook-test/5e2bd96c-0881-458f-8a4f-31795b4b066c
 import streamlit as st
 import requests
 
@@ -23,4 +24,5 @@ if img_file:
             # 여기서 받아온 데이터(품목, 날짜)를 보여줌
             # 예: "우유 / 유통기한: 2026-02-14"
         else:
+
             st.error("AI 연결 오류가 발생했습니다.")
