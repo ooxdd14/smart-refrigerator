@@ -6,7 +6,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # n8n Webhook URL
-URL = "https://primary-production-b57a.up.railway.app/webhook-test/5e2bd96c-0881-458f-8a4f-31795b4b066c"
+URL = "https://primary-production-b57a.up.railway.app/webhook/5e2bd96c-0881-458f-8a4f-31795b4b066c"
 
 st.title("스마트 영수증 관리자 📋")
 
@@ -31,3 +31,4 @@ if img_file is not None:
                 st.error(f"오류 발생: {response.status_code}")
         except Exception as e:
             st.error(f"에러: {e}")
+
