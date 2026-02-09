@@ -2,43 +2,35 @@ import streamlit as st
 import requests
 import urllib3
 
-# SSL 경고 무시
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# n8n Webhook URL (반드시 Production URL로 넣으세요!)
+# n8n Production URL
 URL = "https://primary-production-b57a.up.railway.app/webhook/5e2bd96c-0881-458f-8a4f-31795b4b066c"
-
-# 1. [차이점] 결과값을 저장할 '금고(session_state)' 만들기
-if 'ocr_done' not in st.session_state:
-    st.session_state['ocr_done'] = False
 
 st.title("스마트 영수증 관리자 📋")
 
+# 사진 업로드
 img_file = st.file_uploader("영수증 사진을 업로드하세요", type=['png', 'jpg', 'jpeg'])
 
 if img_file is not None:
     st.image(img_file, caption="업로드됨", use_container_width=True)
     
-    # 2. [차이점] 이미 분석이 끝났다면 다시 전송하지 않도록 조건 추가
-    if not st.session_state['ocr_done']:
-        with st.spinner("분석 중..."):
+    # [수정] 버튼을 눌러야만 전송되게 하여 무한 루프 방지 및 여러 번 실행 가능하게 함
+    if st.button("영수증 분석 및 전송"):
+        with st.spinner("AI가 분석 중입니다..."):
             try:
                 files = {
-                    "data": ("receipt.jpg", img_file.getvalue(), "image/jpeg")
+                    "data": (img_file.name, img_file.getvalue(), img_file.type)
                 }
-                response = requests.post(URL, files=files, verify=False)
+                # Production URL로 전송
+                response = requests.post(URL, files=files, verify=False, timeout=30)
                 
                 if response.status_code == 200:
-                    # 3. [차이점] 성공했다는 사실을 금고에 저장
-                    st.session_state['ocr_done'] = True
-                    st.success("전송 완료!")
-                    # 필요하다면 응답 내용도 보여줍니다
-                    st.balloons() 
+                    st.success("✅ 분석 완료! 구글 시트에 기록되었습니다.")
+                    st.balloons()
                 else:
-                    st.error(f"오류 발생: {response.status_code}")
+                    st.error(f"서버 응답 실패: {response.status_code}")
             except Exception as e:
-                st.error(f"에러: {e}")
+                st.error(f"연동 에러: {e}")
 
-# 4. [차이점] 분석이 완료된 상태라면 계속 "완료" 메시지를 띄워둠
-if st.session_state['ocr_done']:
-    st.info("✅ n8n으로 데이터 전송 및 구글 시트 기록이 완료되었습니다.")
+st.info("💡 새로운 사진을 올리고 버튼을 누르면 계속해서 추가 등록이 가능합니다.")
