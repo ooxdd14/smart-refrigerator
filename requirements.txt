@@ -1,4 +1,4 @@
 streamlit
 requests
-pandas
-gspread
+urllib3
+Pillow
