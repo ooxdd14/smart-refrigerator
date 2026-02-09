@@ -1,36 +1,19 @@
 import streamlit as st
-import requests
-import urllib3
+from PIL import Image # 이미지 처리를 위해 추가
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# n8n Production URL
-URL = "https://primary-production-b57a.up.railway.app/webhook/5e2bd96c-0881-458f-8a4f-31795b4b066c"
-
-st.title("스마트 영수증 관리자 📋")
+st.title("영수증 관리자 (테스트 모드) 📋")
 
 # 사진 업로드
-img_file = st.file_uploader("영수증 사진을 업로드하세요", type=['png', 'jpg', 'jpeg'])
+img_file = st.file_uploader("영수증 사진을 선택하세요", type=['png', 'jpg', 'jpeg'])
 
 if img_file is not None:
-    st.image(img_file, caption="업로드됨", use_container_width=True)
-    
-    # [수정] 버튼을 눌러야만 전송되게 하여 무한 루프 방지 및 여러 번 실행 가능하게 함
-    if st.button("영수증 분석 및 전송"):
-        with st.spinner("AI가 분석 중입니다..."):
-            try:
-                files = {
-                    "data": (img_file.name, img_file.getvalue(), img_file.type)
-                }
-                # Production URL로 전송
-                response = requests.post(URL, files=files, verify=False, timeout=30)
-                
-                if response.status_code == 200:
-                    st.success("✅ 분석 완료! 구글 시트에 기록되었습니다.")
-                    st.balloons()
-                else:
-                    st.error(f"서버 응답 실패: {response.status_code}")
-            except Exception as e:
-                st.error(f"연동 에러: {e}")
-
-st.info("💡 새로운 사진을 올리고 버튼을 누르면 계속해서 추가 등록이 가능합니다.")
+    try:
+        # 1. 파일을 이미지 객체로 변환
+        image = Image.open(img_file)
+        
+        # 2. 화면에 출력 (용량을 줄여서 출력)
+        st.image(image, caption="업로드 성공!", use_container_width=True)
+        st.success("사진이 정상적으로 읽혔습니다. 이제 전송 기능을 연결해도 됩니다.")
+        
+    except Exception as e:
+        st.error(f"사진을 불러오는 중 오류 발생: {e}")
